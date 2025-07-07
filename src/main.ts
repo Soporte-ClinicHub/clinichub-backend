@@ -42,6 +42,7 @@ async function bootstrap() {
   // Configure CORS with more specific settings
   app.enableCors({
     origin: [
+      'https://videoteca-web-enfermeria.vercel.app',
       'http://localhost:3000', // React dev server
       'http://localhost:3001', // Alternative React port
       'http://localhost:5173', // Vite dev server (primary)
@@ -52,6 +53,7 @@ async function bootstrap() {
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+     exposedHeaders: ['set-cookie'],
   });
 
   app.use(helmet({}));
