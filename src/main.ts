@@ -171,7 +171,7 @@ async function bootstrap() {
   await app.listen(configService.app.port);
 
   logger.log(
-    `${configService.app.nodeEnv === 'production' ? 'Production' : 'Development'} environment started successfully`,
+    `${process.env.NODE_ENV === 'production' ? 'Production' : 'Development'} environment started successfully`,
   );
 }
 
