@@ -22,6 +22,10 @@ async function bootstrap() {
 
   const configService = app.get<ConfigType<typeof config>>(config.KEY);
 
+  // Trust proxy for Render hosting platform
+  const expressApp = app.getHttpAdapter().getInstance();
+  expressApp.set('trust proxy', 1);
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
