@@ -43,17 +43,17 @@ async function bootstrap() {
   app.enableCors({
     origin: [
       'https://videoteca-web-enfermeria.vercel.app',
+      'https://clinichub-backend.onrender.com', // Production backend domain
       'http://localhost:3000', // React dev server
       'http://localhost:3001', // Alternative React port
       'http://localhost:5173', // Vite dev server (primary)
       'http://localhost:5174', // Vite dev server (alternative)
       'http://localhost:8080', // Alternative frontend port
-      // Add your production frontend domain here
     ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
-     exposedHeaders: ['set-cookie'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'X-Requested-With'],
+    exposedHeaders: ['set-cookie'],
   });
 
   app.use(helmet({}));
