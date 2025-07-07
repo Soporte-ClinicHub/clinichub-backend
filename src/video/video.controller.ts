@@ -66,19 +66,30 @@ export class VideoController {
           new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 2000 }), // 2GB
           new FileTypeValidator({ fileType: 'video/*' }),
         ],
+        errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+        exceptionFactory: (error) => {
+          return {
+            statusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+            message: `Error de validación del archivo: ${error}`,
+            data: null,
+          };
+        },
       }),
     )
     file: Express.Multer.File,
     @Body() createVideoDto: CreateVideoDto,
   ): Promise<ApiResponse<Video>> {
     try {
+      console.log(`Starting upload for file: ${file.originalname}, size: ${file.size} bytes`);
       const video = await this.videoService.upload(file, createVideoDto);
+      console.log(`Upload completed successfully for video ID: ${video.id}`);
       return {
         statusCode: HttpStatus.CREATED,
         message: 'Video subido exitosamente',
         data: video,
       };
     } catch (error) {
+      console.error('Video upload error:', error);
       return {
         statusCode: error.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
         message: error.message || 'Error al subir el video',

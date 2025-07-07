@@ -42,8 +42,7 @@ async function bootstrap() {
   // Configure CORS with more specific settings
   app.enableCors({
     origin: [
-      'https://videoteca-web-enfermeria.vercel.app',
-      'https://clinichub-backend.onrender.com', // Production backend domain
+      'https://videoteca-web-enfermeria.vercel.app', // Production frontend
       'http://localhost:3000', // React dev server
       'http://localhost:3001', // Alternative React port
       'http://localhost:5173', // Vite dev server (primary)
@@ -52,8 +51,30 @@ async function bootstrap() {
     ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'X-Requested-With'],
+    allowedHeaders: [
+      'Content-Type', 
+      'Authorization', 
+      'Accept', 
+      'X-Requested-With',
+      'Origin',
+      'Cache-Control',
+      'Content-Length'
+    ],
     exposedHeaders: ['set-cookie'],
+    optionsSuccessStatus: 200, // Some legacy browsers choke on 204
+    preflightContinue: false,
+  });
+
+  // Add specific CORS handling for video uploads
+  app.use('/api/v1/videos/upload', (req, res, next) => {
+    if (req.method === 'OPTIONS') {
+      res.header('Access-Control-Allow-Origin', 'https://videoteca-web-enfermeria.vercel.app');
+      res.header('Access-Control-Allow-Methods', 'POST, OPTIONS');
+      res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept, X-Requested-With, Origin');
+      res.header('Access-Control-Max-Age', '86400');
+      return res.status(200).end();
+    }
+    next();
   });
 
   app.use(helmet({}));
@@ -67,18 +88,33 @@ async function bootstrap() {
     next();
   });
 
-  // Limita cada IP a 100 solicitudes por ventana de 15 minutos
+  // Configure rate limiting
   app.use(
     rateLimit({
       windowMs: 15 * 60 * 1000, // 15 minutos
       max: 100,
+      skip: (req) => {
+        // Skip rate limiting for video uploads
+        return req.url?.includes('/videos/upload') || false;
+      },
+    }),
+  );
+
+  // Separate rate limit for video uploads (more lenient)
+  app.use('/api/v1/videos/upload',
+    rateLimit({
+      windowMs: 60 * 60 * 1000, // 1 hour
+      max: 10, // 10 uploads per hour
     }),
   );
 
   // Extend timeout for file uploads
   app.use((req, res, next) => {
     if (req.url?.includes('/videos/upload')) {
-      res.setTimeout(300000); // 5 minutes
+      req.setTimeout(600000); // 10 minutes for request
+      res.setTimeout(600000); // 10 minutes for response
+      // Set specific headers for file uploads
+      res.setHeader('Access-Control-Max-Age', '86400'); // 24 hours
     }
     next();
   });
@@ -135,7 +171,7 @@ async function bootstrap() {
   await app.listen(configService.app.port);
 
   logger.log(
-    `${process.env.NODE_ENV === 'production' ? 'Production' : 'Development'} environment started successfully`,
+    `${configService.app.nodeEnv === 'production' ? 'Production' : 'Development'} environment started successfully`,
   );
 }
 
