@@ -39,9 +39,7 @@ export class VideoInteractionController {
     @Body() createDto: CreateVideoInteractionDto,
   ): Promise<ApiResponse<VideoInteraction>> {
     try {
-      console.log('Creating Video Interaction:', createDto);
       const data = await this.videoInteractionService.create(createDto);
-      console.log('Video Interaction Created:', data);
       return {
         message: 'Interacción de video creada',
         statusCode: HttpStatus.CREATED,

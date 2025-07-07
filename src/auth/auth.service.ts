@@ -81,7 +81,6 @@ export class AuthService {
 
       return { user, accessToken, refreshToken };
     } catch (error) {
-      console.log('Error en login con Google:', error);
       throw new UnauthorizedException(
         'Token de Google inválido o usuario no válido.',
       );

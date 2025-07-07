@@ -12,7 +12,6 @@ import { Video } from './entities/video.entity';
 import { VideoStorageService } from './video-storage.service';
 import { Category } from '../category/entities/category.entity'; // Assuming Category is imported from the correct path
 
-
 @Injectable()
 export class VideoService {
   constructor(
@@ -39,11 +38,17 @@ export class VideoService {
 
       let category: Category = null;
       if (createVideoDto.categoryId) {
-        category = await this.categoryRepository.findOne({ where: { id: createVideoDto.categoryId } });
+        category = await this.categoryRepository.findOne({
+          where: { id: createVideoDto.categoryId },
+        });
       } else if (createVideoDto.newCategory) {
-        category = await this.categoryRepository.findOne({ where: { name: createVideoDto.newCategory } });
+        category = await this.categoryRepository.findOne({
+          where: { name: createVideoDto.newCategory },
+        });
         if (!category) {
-          category = this.categoryRepository.create({ name: createVideoDto.newCategory });
+          category = this.categoryRepository.create({
+            name: createVideoDto.newCategory,
+          });
           category = await this.categoryRepository.save(category);
         }
       }
@@ -116,8 +121,9 @@ export class VideoService {
 
   async findAll() {
     try {
-      const videos = await this.videoRepository.find({ relations: ['category'] });
-      console.log(videos);
+      const videos = await this.videoRepository.find({
+        relations: ['category'],
+      });
       return videos;
     } catch (error) {
       throw new InternalServerErrorException(
@@ -127,7 +133,10 @@ export class VideoService {
   }
 
   async findOne(id: string) {
-    const video = await this.videoRepository.findOne({ where: { id } , relations: ['category'],});
+    const video = await this.videoRepository.findOne({
+      where: { id },
+      relations: ['category'],
+    });
     if (!video) {
       throw new NotFoundException(`Video con ID "${id}" no encontrado`);
     }

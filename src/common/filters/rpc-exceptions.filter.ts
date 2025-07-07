@@ -14,8 +14,6 @@ export class RpcExceptionsFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
 
-    console.log(exception);
-
     const status =
       (exception as any).statusCode || HttpStatus.INTERNAL_SERVER_ERROR;
 
